@@ -1,11 +1,261 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>melod1n</title>
+  <meta charset="UTF-8" />
+  <title>melod1n · Danil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="Danil (melod1n) — Android & Kotlin Multiplatform developer."
+  />
+  <style>
+    :root {
+      --bg: #050114;
+      --card-bg: #070218;
+      --card-border: rgba(192, 132, 252, 0.6);
+      --accent: #a855f7;
+      --text-main: #f9fafb;
+      --text-soft: #a1a1aa;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, #4c1d95 0, #020617 55%, #020012 100%);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 520px;
+      border-radius: 18px;
+      background: radial-gradient(circle at top left, #1e1033 0, #030014 65%);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.95);
+      padding: 20px 18px 18px;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .header-text {
+      min-width: 0;
+    }
+
+    .avatar {
+      width: 84px;
+      height: 84px;
+      border-radius: 999px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 2px solid rgba(216, 180, 254, 0.85);
+      box-shadow: 0 8px 28px rgba(24, 16, 48, 0.95);
+    }
+
+    .name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      margin: 0 0 4px;
+    }
+
+    .handle {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      margin: 0;
+    }
+
+    .tagline {
+      font-size: 0.98rem;
+      margin: 0 0 8px;
+    }
+
+    .subtitle {
+      font-size: 0.86rem;
+      color: var(--text-soft);
+      margin: 0 0 16px;
+      line-height: 1.5;
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+      margin: 0 0 6px;
+    }
+
+    .pill-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pill {
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(216, 180, 254, 0.8);
+      font-size: 0.76rem;
+      color: var(--text-soft);
+      background: rgba(24, 15, 45, 0.95);
+    }
+
+    .links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 6px;
+      font-size: 0.86rem;
+    }
+
+    .links a {
+      color: var(--text-main);
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 6px 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border: 1px solid transparent;
+      transition: background 0.15s ease, border-color 0.15s ease,
+        transform 0.15s ease;
+      background: rgba(17, 13, 32, 0.85);
+    }
+
+    .links a span.label {
+      color: var(--text-soft);
+      font-size: 0.78rem;
+    }
+
+    .links a:hover {
+      background: rgba(30, 20, 60, 0.98);
+      border-color: rgba(196, 181, 253, 0.95);
+      transform: translateY(-1px);
+    }
+
+    .links a .emoji {
+      font-size: 1rem;
+    }
+
+    .footer {
+      margin-top: 14px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 16px 14px 14px;
+      }
+      .header-row {
+        align-items: flex-start;
+      }
+      .avatar {
+        width: 72px;
+        height: 72px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .header-row {
+        flex-direction: column-reverse;
+        align-items: flex-start;
+      }
+    }
+  </style>
 </head>
 <body>
-    <p>Wow! Such cool website!</p>
+  <main class="card">
+    <div class="header-row">
+      <div class="header-text">
+        <h1 class="name">Danil</h1>
+        <p class="handle">@melod1n</p>
+      </div>
+      <img src="avatar.jpg" alt="Photo of Danil" class="avatar" />
+    </div>
+
+    <p class="tagline">Android & Kotlin Multiplatform developer.</p>
+    <p class="subtitle">
+      I build Android & KMP apps, Telegram/VK bots and run my own
+      self-hosted infrastructure (Gitea, Jenkins, Docker).
+    </p>
+
+    <p class="section-title">I usually work with</p>
+    <ul class="pill-list">
+      <li class="pill">Android · Jetpack Compose</li>
+      <li class="pill">Kotlin Multiplatform</li>
+      <li class="pill">Bots & backends</li>
+      <li class="pill">Docker & homelab</li>
+    </ul>
+
+    <p class="section-title">Links</p>
+    <ul class="links">
+      <li>
+        <a href="https://github.com/melod1n" target="_blank">
+          <span><span class="emoji">💻</span> GitHub</span>
+          <span class="label">github.com/melod1n</span>
+        </a>
+      </li>
+      <li>
+        <a href="mailto:lischenkodev@gmail.com">
+          <span><span class="emoji">✉️</span> Email</span>
+          <span class="label">lischenkodev@gmail.com</span>
+        </a>
+      </li>
+      <li>
+        <a href="https://t.me/melod1n" target="_blank">
+          <span><span class="emoji">📨</span> Telegram</span>
+          <span class="label">@melod1n</span>
+        </a>
+      </li>
+      <li>
+        <a href="https://www.linkedin.com/in/melod1n" target="_blank">
+          <span><span class="emoji">🔗</span> LinkedIn</span>
+          <span class="label">linkedin.com/in/melod1n</span>
+        </a>
+      </li>
+      <li>
+        <a href="https://vk.com/melod1n" target="_blank">
+          <span><span class="emoji">⭐</span> VK</span>
+          <span class="label">vk.com/melod1n</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="footer">
+      <span>© <span id="year"></span> melod1n</span>
+      <span>Hosted on GitHub Pages</span>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
