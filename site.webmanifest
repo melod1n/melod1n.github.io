@@ -1,0 +1,16 @@
+{
+  "name": "Danil Nikolaev — Portfolio",
+  "short_name": "melod1n",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#060611",
+  "theme_color": "#060611",
+  "icons": [
+    {
+      "src": "assets/img/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "lang": "en",
+    "home": {
+      "title": "Danil Nikolaev — Android Developer",
+      "description": "Danil Nikolaev — Android engineer building products end to end with Kotlin, backends, automation, infrastructure and AI.",
+      "ogType": "website",
+      "ogTitle": "Danil Nikolaev — Android Developer",
+      "ogDescription": "Android products and whatever they need behind the screen.",
+      "ogImage": "assets/img/avatar.webp"
+    },
+    "portfolio": {
+      "title": "Portfolio — Danil Nikolaev",
+      "description": "Selected projects by Danil Nikolaev.",
+      "ogType": "website",
+      "ogTitle": "Portfolio — Danil Nikolaev",
+      "ogDescription": "Selected Android, Kotlin Multiplatform, backend, automation and infrastructure projects.",
+      "ogImage": "assets/img/avatar.webp"
+    }
+  },
+  "profile": {
+    "kicker": "SOFTWARE ENGINEER",
+    "name": "Danil Nikolaev",
+    "handle": "@melod1n",
+    "handleUrl": "https://t.me/melod1n",
+    "role": "I build Android products and whatever they need behind the screen.",
+    "summary": "Android is my home turf. I also build backends, bots and infrastructure, automate the boring parts, and put AI to work where it actually helps. Definitely not a web developer, though.",
+    "avatar": "assets/img/avatar.webp",
+    "kickerMobile": "SOFTWARE ENGINEER",
+    "avatarAlt": "Danil Nikolaev"
+  },
+  "labels": {
+    "skills": "What I work with",
+    "links": "Find me"
+  },
+  "skills": [
+    "Android · Jetpack Compose",
+    "Kotlin · KMP",
+    "Backend · Ktor",
+    "Bots & automation",
+    "AI · LLM tooling",
+    "DevOps · CI/CD",
+    "Docker · self-hosting"
+  ],
+  "links": [
+    {
+      "label": "GitHub",
+      "value": "github.com/melod1n",
+      "href": "https://github.com/melod1n",
+      "icon": "github"
+    },
+     {
+      "label": "Telegram",
+      "value": "@melod1n",
+      "href": "https://t.me/melod1n",
+      "icon": "telegram"
+    },
+     {
+      "label": "Email",
+      "value": "lischenkodev@gmail.com",
+      "href": "mailto:lischenkodev@gmail.com",
+      "icon": "mail"
+    },
+     {
+      "label": "VK",
+      "value": "vk.com/melod1n",
+      "href": "https://vk.com/melod1n",
+      "icon": "vk"
+    },
+    {
+      "label": "Gitea",
+      "value": "gitea.mlgt.ru/melod1n",
+      "href": "https://gitea.mlgt.ru/melod1n",
+      "icon": "gitea"
+    }
+  ],
+  "portfolio": {
+    "intro": "",
+    "projects": [],
+    "kicker": "",
+    "title": "Portfolio"
+  },
+  "footer": {
+    "copyright": "© 2026"
+  },
+  "navigation": {
+    "back": "Back",
+    "backAriaLabel": "Back to home page",
+    "home": "Home"
+  }
+}
