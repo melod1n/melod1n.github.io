@@ -216,7 +216,6 @@ a {
 
 .profile-shell {
   width: min(100%, var(--content-width));
-  filter: drop-shadow(0 28px 56px var(--shadow));
 }
 
 .glass-card {
@@ -432,13 +431,18 @@ a {
 .contact-drawer::after {
   content: "";
   position: absolute;
-  width: 250px;
+  width: 360px;
   aspect-ratio: 1;
-  right: -110px;
-  bottom: -155px;
+  right: -165px;
+  bottom: -215px;
   border-radius: 50%;
-  background: var(--glow);
-  filter: blur(70px);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--glow) 82%, transparent) 0%,
+    color-mix(in srgb, var(--glow) 42%, transparent) 30%,
+    color-mix(in srgb, var(--glow) 14%, transparent) 52%,
+    transparent 72%
+  );
   opacity: 0.4;
   pointer-events: none;
 }
@@ -462,6 +466,10 @@ a {
 }
 
 .profile-link {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  contain: paint;
   min-width: 0;
   flex: 1 1 var(--link-basis);
   min-height: 50px;
@@ -474,12 +482,31 @@ a {
   border-radius: 17px;
   background: var(--link-bg);
   text-decoration: none;
-  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.profile-link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--link-bg-hover);
+  opacity: 0;
+  transition: opacity 180ms ease;
+  pointer-events: none;
+}
+
+.profile-link > * {
+  position: relative;
+  z-index: 1;
+}
+
+.profile-link:hover::before {
+  opacity: 1;
 }
 
 .profile-link:hover {
   border-color: var(--border-soft);
-  background: var(--link-bg-hover);
   transform: translateY(-1px);
 }
 
