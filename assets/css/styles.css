@@ -275,7 +275,13 @@ a {
 }
 
 .eyebrow__desktop {
-  display: inline;
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 4px 7px;
+  border: 1px solid color-mix(in srgb, var(--chip-border) 76%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--chip-bg) 84%, transparent);
 }
 
 .eyebrow__mobile {
