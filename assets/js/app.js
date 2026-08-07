@@ -201,16 +201,16 @@ function createHome(data) {
   links.style.setProperty("--link-basis-desktop", `calc(${100 / preferredColumns}% - var(--link-gap))`);
   links.append(...visibleLinks.map(createProfileLink));
 
-  const footer = element("footer", "profile-footer");
+  const footer = element("footer", "profile-footer profile-footer--home");
   footer.append(element("span", "", data.footer?.copyright || ""));
-  append(drawer, linksHeading, links, footer);
+  append(drawer, linksHeading, links);
 
   const article = element("article", "profile-shell");
   article.setAttribute("aria-labelledby", "profile-name");
   append(article, profileMain, drawer);
 
   const main = element("main", "page-shell page-shell--home");
-  main.append(article);
+  main.append(article, footer);
 
   return [createAmbient(), main];
 }
@@ -244,10 +244,10 @@ function createPortfolio(data) {
   append(footer, element("span", "", data.footer?.copyright || ""), home);
 
   const card = element("article", "portfolio-card glass-card");
-  append(card, topbar, header, grid, footer);
+  append(card, topbar, header, grid);
 
   const main = element("main", "page-shell page-shell--portfolio");
-  main.append(card);
+  main.append(card, footer);
 
   return [createAmbient(), main];
 }

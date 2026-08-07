@@ -197,12 +197,14 @@ a {
 .page-shell--home {
   min-height: 100svh;
   display: grid;
+  grid-template-rows: 1fr auto;
   place-items: center;
 }
 
 .page-shell--portfolio {
   min-height: 100svh;
   display: grid;
+  grid-template-rows: 1fr auto;
   place-items: start center;
   padding-block: max(34px, env(safe-area-inset-top)) max(34px, env(safe-area-inset-bottom));
 }
@@ -414,7 +416,7 @@ a {
   z-index: 1;
   width: 100%;
   margin: 18px auto 0;
-  padding: 24px clamp(18px, 3.2vw, 30px) 18px;
+  padding: 24px clamp(18px, 3.2vw, 30px) 32px;
   overflow: hidden;
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-drawer);
@@ -562,7 +564,6 @@ a {
   gap: 16px;
   margin-top: 15px;
   padding-top: 14px;
-  border-top: 1px solid var(--border-soft);
   color: var(--text-soft);
   font-size: 0.8rem;
 }
@@ -581,6 +582,20 @@ a {
   width: min(100%, var(--content-width));
   padding: clamp(24px, 3.6vw, 42px);
   border-radius: var(--radius-card);
+}
+
+.profile-footer--portfolio {
+  width: min(100%, var(--content-width));
+  justify-content: center;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.profile-footer--home {
+  width: min(100%, var(--content-width));
+  justify-content: center;
+  margin-bottom: 8px;
+  text-align: center;
 }
 
 .profile-card__topbar {
@@ -744,10 +759,6 @@ a {
   border-radius: 18px;
   color: var(--text-muted);
   text-align: center;
-}
-
-.profile-footer--portfolio {
-  justify-content: space-between;
 }
 
 .profile-footer a {
