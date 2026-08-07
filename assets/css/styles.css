@@ -307,6 +307,7 @@ a {
 .avatar-frame {
   position: relative;
   width: clamp(92px, 16vw, 138px);
+  height: clamp(92px, 16vw, 138px);
   aspect-ratio: 1;
   flex: 0 0 auto;
   border: 2px solid var(--chip-border);
@@ -833,6 +834,7 @@ a {
 
   .avatar-frame {
     width: clamp(82px, 23vw, 104px);
+    height: clamp(82px, 23vw, 104px);
   }
 
   .intro {
@@ -910,6 +912,7 @@ a {
 
   .avatar-frame {
     width: 80px;
+    height: 80px;
   }
 
   .intro h2 {
