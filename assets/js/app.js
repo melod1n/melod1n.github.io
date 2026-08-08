@@ -123,13 +123,14 @@ function createProjectCard(project) {
   if (project.links?.length) {
     const links = element("div", "project-links");
     links.append(...project.links.map((item) => {
+      if (!item.href) return null;
       const anchor = element("a", "project-link");
-      anchor.href = item.href || "#";
+      anchor.href = item.href;
       anchor.target = "_blank";
       anchor.rel = "noopener";
       append(anchor, createIcon(item.icon || "external", ""), element("span", "", item.label));
       return anchor;
-    }));
+    }).filter(Boolean));
     card.append(links);
   }
 
@@ -171,6 +172,9 @@ function createHome(data) {
   const role = element("h2", "", profile.role);
   role.id = "profile-role";
   append(intro, role, element("p", "", profile.summary));
+  const portfolioLink = element("a", "portfolio-cta", labels.portfolio || "View portfolio");
+  portfolioLink.href = "portfolio.html";
+  append(intro, portfolioLink);
   intro.setAttribute("aria-labelledby", "profile-role");
 
   const skillsSection = element("section", "content-section skills-section");
@@ -235,8 +239,13 @@ function createPortfolio(data) {
     element("p", "", portfolio.intro)
   );
 
+  const projects = portfolio.projects || [];
   const grid = element("section", "project-grid");
-  grid.append(...(portfolio.projects || []).map(createProjectCard));
+  if (projects.length) {
+    grid.append(...projects.map(createProjectCard));
+  } else {
+    grid.append(element("p", "projects-empty", data.labels?.projectsEmpty || "Projects will appear here soon."));
+  }
 
   const footer = element("footer", "profile-footer profile-footer--portfolio");
   const home = element("a", "", navigation.home || "");

@@ -31,7 +31,9 @@
   },
   "labels": {
     "skills": "What I work with",
-    "links": "Find me"
+    "links": "Find me",
+    "portfolio": "View portfolio",
+    "projectsEmpty": "Projects will appear here soon."
   },
   "skills": [
     "Android · Jetpack Compose",
