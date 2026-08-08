@@ -78,9 +78,96 @@
   ],
   "portfolio": {
     "intro": "",
-    "projects": [],
-    "kicker": "",
-    "title": "Portfolio"
+    "kicker": "More is on the way...",
+    "title": "Portfolio",
+    "projects": [
+      {
+        "name": "fast-messenger",
+        "gridSpan": 2,
+        "type": "Main Project",
+        "description": "Production-grade Android messenger with real-time messaging, offline support, pagination and complex navigation. Built with a modular architecture and designed for real-world use.",
+        "tags": [
+          "Kotlin",
+          "Jetpack Compose",
+          "Coroutines",
+          "Room",
+          "Koin"
+        ],
+        "links": [
+          {
+            "href": "https://github.com/melod1n/fast-messenger",
+            "label": "GitHub",
+            "icon": "github"
+          }
+        ]
+      },
+      {
+        "name": "Seller Helper",
+        "type": "Work in Progress",
+        "description": "Marketplace management platform that brings sales, finances, inventory and analytics from multiple marketplaces into one system.",
+        "tags": [
+          "Kotlin Multiplatform",
+          "Jetpack Compose",
+          "Ktor",
+          "PostgreSQL",
+          "Wildberries",
+          "Ozon"
+        ],
+        "links": []
+      },
+      {
+        "name": "fast-vpn",
+        "type": "Work in Progress",
+        "description": "Cross-platform VPN client for Android, Linux, macOS and Windows with support for multiple proxy cores and protocols.",
+        "tags": [
+          "Kotlin Multiplatform",
+          "Jetpack Compose",
+          "Ktor",
+          "Xray",
+          "Mihomo",
+          "sing-box"
+        ],
+        "links": []
+      },
+      {
+        "name": "MLKit Scanner",
+        "type": "Test Project",
+        "description": "Android QR and barcode scanner built to experiment with real-time camera analysis using ML Kit and CameraX.",
+        "tags": [
+          "Kotlin",
+          "Jetpack Compose",
+          "ML Kit",
+          "CameraX"
+        ],
+        "links": [
+          {
+            "href": "https://github.com/melod1n/MLKitTestApp",
+            "label": "GitHub",
+            "icon": "github"
+          }
+        ]
+      },
+      {
+        "name": "tg-chat-bot",
+        "type": "Telegram Bot",
+        "description": "Feature-rich Telegram bot with AI capabilities, chat automation, utilities and persistent storage.",
+        "tags": [
+          "TypeScript",
+          "Bun",
+          "Drizzle",
+          "SQLite",
+          "Telegram",
+          "AI"
+        ],
+        "links": [
+          {
+            "href": "https://github.com/melod1n/tg-chat-bot",
+            "label": "GitHub",
+            "icon": "github"
+          }
+        ]
+      }
+    ]
   },
   "footer": {
     "copyright": "© 2026"

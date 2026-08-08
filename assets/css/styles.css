@@ -936,6 +936,10 @@ a {
     grid-template-columns: 1fr;
   }
 
+  .project-card {
+    grid-column: 1 / -1 !important;
+  }
+
   .portfolio-card {
     padding: 22px 19px;
   }

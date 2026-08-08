@@ -107,6 +107,9 @@ function getPreferredLinkColumns(count) {
 
 function createProjectCard(project) {
   const card = element("article", "project-card");
+  const gridSpan = Number(project.gridSpan);
+  if (gridSpan === 1 || gridSpan === 2) card.style.gridColumn = `span ${gridSpan}`;
+
   const head = element("header", "project-card__head");
   append(
     head,
