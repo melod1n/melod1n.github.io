@@ -7,7 +7,8 @@ const ICONS = {
   vk: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.4 5.5h3.4c.2 0 .35.13.42.32.8 2.22 1.8 4.17 3.04 5.85.2.27.62.13.62-.2V6c0-.27.22-.5.5-.5h2.97c.27 0 .5.23.5.5v4.73c0 .4.49.57.73.25 1.21-1.62 2.2-3.35 2.96-5.18.08-.18.25-.3.45-.3h3.2c.4 0 .64.45.43.78-1.18 1.9-2.45 3.66-3.79 5.28a.5.5 0 0 0 .03.67c1.48 1.45 2.9 3.08 4.2 4.87.24.34 0 .8-.41.8h-3.56a.5.5 0 0 1-.39-.19c-1-1.25-2.05-2.38-3.14-3.4-.26-.24-.69-.06-.69.29v2.8a.5.5 0 0 1-.5.5h-1.34C7.8 17.9 4.5 14.3 2.92 6.14a.53.53 0 0 1 .48-.64Z"/></svg>`,
   "arrow-left": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>`,
   external: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 5h5v5M19 5l-9 9"/><path d="M19 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>`,
-  code: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M14 5l-4 14"/></svg>`
+  code: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 9-4 3 4 3M16 9l4 3-4 14"/></svg>`,
+  close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>`
 };
 
 const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
@@ -19,6 +20,7 @@ let themeConfig = null;
 let siteSnapshot = "";
 let themeSnapshot = "";
 let refreshInFlight = false;
+let projectDialog = null;
 
 function icon(name) {
   return ICONS[name] || ICONS.external;
@@ -105,10 +107,28 @@ function getPreferredLinkColumns(count) {
   return 4;
 }
 
-function createProjectCard(project) {
+function projectSlug(project) {
+  const id = String(project.id || "").trim();
+  if (id) return id;
+  const value = String(project.name || "").trim().toLowerCase();
+  return value.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+function createProjectCard(project, openDetails) {
   const card = element("article", "project-card");
   const gridSpan = Number(project.gridSpan);
   if (gridSpan === 1 || gridSpan === 2) card.style.gridColumn = `span ${gridSpan}`;
+  card.tabIndex = 0;
+  card.setAttribute("aria-label", `View details for ${project.name || "project"}`);
+  card.addEventListener("click", (event) => {
+    if (!event.target.closest("a, button")) openDetails(project, card);
+  });
+  card.addEventListener("keydown", (event) => {
+    if ((event.key === "Enter" || event.key === " ") && !event.target.closest("a, button")) {
+      event.preventDefault();
+      openDetails(project, card);
+    }
+  });
 
   const head = element("header", "project-card__head");
   append(
@@ -137,7 +157,184 @@ function createProjectCard(project) {
     card.append(links);
   }
 
+  card.append(element("span", "project-card__details", "Details →"));
+
   return card;
+}
+
+function safeUrl(value, protocols = ["http:", "https:"]) {
+  if (!value) return "";
+  try {
+    const url = new URL(String(value || ""), document.baseURI);
+    return protocols.includes(url.protocol) ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+
+function appendDetailSection(parent, title, content) {
+  if (!content || (Array.isArray(content) && !content.length)) return;
+  const section = element("section", "project-dialog__section");
+  section.append(element("h3", "", title));
+  if (Array.isArray(content)) {
+    const list = element("ul", "");
+    list.append(...content.filter(Boolean).map((item) => element("li", "", item)));
+    if (!list.children.length) return;
+    section.append(list);
+  } else {
+    section.append(element("p", "", content));
+  }
+  parent.append(section);
+}
+
+function createProjectDialog(projects) {
+  const dialog = element("dialog", "project-dialog");
+  const title = element("h2", "project-dialog__title");
+  title.id = "project-dialog-title";
+  dialog.setAttribute("aria-labelledby", title.id);
+
+  const type = element("p", "project-dialog__type");
+  const actions = element("div", "project-dialog__actions");
+  const close = element("button", "project-dialog__close");
+  close.type = "button";
+  close.setAttribute("aria-label", "Close");
+  close.innerHTML = icon("close");
+  actions.append(close);
+
+  const top = element("div", "project-dialog__top");
+  append(top, type, actions);
+  const chips = element("div", "project-dialog__chips");
+  const body = element("div", "project-dialog__body");
+  append(dialog, top, title, chips, body);
+
+  let origin = null;
+  let closing = false;
+  let pushed = false;
+  let closeTimer = null;
+  const projectBySlug = new Map(projects.map((project) => [projectSlug(project), project]).filter(([slug]) => slug));
+
+  function currentSlug() {
+    try {
+      return decodeURIComponent(window.location.hash.slice(1));
+    } catch {
+      return "";
+    }
+  }
+
+  function render(project) {
+    const github = (project.links || []).find((link) => link.icon === "github" && safeUrl(link.href));
+    title.textContent = project.name || "Project";
+    type.textContent = project.type || "Project";
+    chips.replaceChildren(...(project.tags || []).map((tag) => element("span", "project-tag", tag)));
+    actions.replaceChildren();
+    actions.append(close);
+    if (github) {
+      const githubUrl = safeUrl(github.href);
+      const link = element("a", "project-dialog__github", github.label || "GitHub");
+      link.href = githubUrl;
+      link.target = "_blank";
+      link.rel = "noopener";
+      append(link, createIcon("github", ""));
+      actions.append(link);
+    }
+
+    body.replaceChildren();
+    const imageUrl = safeUrl(project.image);
+    if (imageUrl) {
+      const image = element("img", "project-dialog__image");
+      image.src = imageUrl;
+      image.alt = project.imageAlt || project.name || "Project image";
+      image.loading = "lazy";
+      body.append(image);
+    }
+    const copy = element("div", "project-dialog__copy");
+    if (project.tagline) copy.append(element("p", "project-dialog__tagline", project.tagline));
+    if (project.description) copy.append(element("p", "project-dialog__description", project.description));
+    appendDetailSection(copy, "Highlights", project.highlights);
+    appendDetailSection(copy, "Contribution", project.contribution);
+    appendDetailSection(copy, "Architecture", project.architecture);
+    appendDetailSection(copy, "Details", project.details);
+    if (copy.children.length) body.append(copy);
+  }
+
+  function finishClose() {
+    if (!dialog.open) return;
+    dialog.close();
+    dialog.classList.remove("is-closing");
+    document.body.classList.remove("project-dialog-open");
+    closing = false;
+    pushed = false;
+    if (origin?.isConnected) origin.focus();
+    origin = null;
+  }
+
+  function closeDialog() {
+    if (!dialog.open || closing) return;
+    closing = true;
+    dialog.classList.remove("is-open");
+    dialog.classList.add("is-closing");
+    closeTimer = window.setTimeout(finishClose, 200);
+  }
+
+  function requestClose() {
+    if (pushed) {
+      history.back();
+    } else if (window.location.hash) {
+      history.replaceState(history.state, "", `${window.location.pathname}${window.location.search}`);
+      closeDialog();
+    } else {
+      closeDialog();
+    }
+  }
+
+  function open(project, card, addHistory = true) {
+    const slug = projectSlug(project);
+    if (!slug) return;
+    if (closeTimer) {
+      window.clearTimeout(closeTimer);
+      closeTimer = null;
+    }
+    if (closing) dialog.classList.remove("is-closing");
+    closing = false;
+    render(project);
+    if (!dialog.open) {
+      origin = card || document.activeElement;
+      dialog.showModal();
+      document.body.classList.add("project-dialog-open");
+    }
+    requestAnimationFrame(() => {
+      dialog.classList.add("is-open");
+      if (!card && origin === document.body) {
+        window.setTimeout(() => {
+          if (dialog.open && origin === document.body) close.focus({ preventScroll: true });
+        }, 0);
+      }
+    });
+    if (addHistory && currentSlug() !== slug) {
+      history.pushState({ projectDetails: true }, "", `#${encodeURIComponent(slug)}`);
+      pushed = true;
+    }
+  }
+
+  function syncHash() {
+    const project = projectBySlug.get(currentSlug());
+    if (project) {
+      pushed = Boolean(history.state?.projectDetails);
+      open(project, null, false);
+    }
+    else closeDialog();
+  }
+
+  close.addEventListener("click", requestClose);
+  dialog.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    requestClose();
+  });
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) requestClose();
+  });
+
+  return { dialog, open, syncHash };
 }
 
 function createHome(data) {
@@ -243,9 +440,10 @@ function createPortfolio(data) {
   );
 
   const projects = portfolio.projects || [];
+  projectDialog = createProjectDialog(projects);
   const grid = element("section", "project-grid");
   if (projects.length) {
-    grid.append(...projects.map(createProjectCard));
+    grid.append(...projects.map((project) => createProjectCard(project, projectDialog.open)));
   } else {
     grid.append(element("p", "projects-empty", data.labels?.projectsEmpty || "Projects will appear here soon."));
   }
@@ -261,13 +459,16 @@ function createPortfolio(data) {
   const main = element("main", "page-shell page-shell--portfolio");
   main.append(card, footer);
 
-  return [createAmbient(), main];
+  return [createAmbient(), main, projectDialog.dialog];
 }
 
 function renderPage(data) {
+  document.body.classList.remove("project-dialog-open");
+  projectDialog = null;
   document.body.className = page === "portfolio" ? "portfolio-page" : "home-page";
   const nodes = page === "portfolio" ? createPortfolio(data) : createHome(data);
   app.replaceChildren(...nodes);
+  if (projectDialog) projectDialog.syncHash();
 }
 
 function setMeta(name, value, attribute = "name") {
@@ -469,6 +670,8 @@ async function init() {
   try {
     watchSystemTheme();
     await loadInitialConfig();
+    window.addEventListener("popstate", () => projectDialog?.syncHash());
+    window.addEventListener("hashchange", () => projectDialog?.syncHash());
     startConfigWatcher();
   } catch (error) {
     showFatalError(error);
