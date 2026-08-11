@@ -127,7 +127,13 @@
           "Mihomo",
           "sing-box"
         ],
-        "links": []
+        "links": [
+          {
+            "href": "https://github.com/melod1n/fast-vpn",
+            "label": "GitHub",
+            "icon": "github"
+          }
+        ]
       },
       {
         "name": "MLKit Scanner",
