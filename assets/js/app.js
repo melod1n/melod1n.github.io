@@ -81,9 +81,10 @@ function createKicker(desktopValue, mobileValue) {
   return wrapper;
 }
 
-function createProfileLink(item) {
+function createProfileLink(item, labelsHiddenOnMobile) {
   const href = String(item.href || "#");
   const anchor = element("a", "profile-link");
+  if (labelsHiddenOnMobile) anchor.classList.add("profile-link--label-hidden-mobile");
   anchor.href = href;
   anchor.rel = href.startsWith("http") ? "me noopener" : "noopener";
   if (href.startsWith("http")) anchor.target = "_blank";
@@ -213,6 +214,7 @@ function createProjectDialog(projects) {
   let closeTimer = null;
   let focusCloseOnOpen = false;
   let focusFrame = null;
+  let lockedScrollY = 0;
   const projectBySlug = new Map(projects.map((project) => [projectSlug(project), project]).filter(([slug]) => slug));
 
   function currentSlug() {
@@ -242,6 +244,7 @@ function createProjectDialog(projects) {
 
     body.replaceChildren();
     const imageUrl = safeUrl(project.image);
+    body.classList.toggle("project-dialog__body--copy-only", !imageUrl);
     if (imageUrl) {
       const image = element("img", "project-dialog__image");
       image.src = imageUrl;
@@ -261,6 +264,7 @@ function createProjectDialog(projects) {
 
   function finishClose() {
     if (!dialog.open) return;
+    closeTimer = null;
     if (focusFrame) window.cancelAnimationFrame(focusFrame);
     focusFrame = null;
     focusCloseOnOpen = false;
@@ -268,6 +272,12 @@ function createProjectDialog(projects) {
     dialog.close();
     dialog.classList.remove("is-closing");
     document.body.classList.remove("project-dialog-open");
+    document.body.classList.remove("project-dialog-open--mobile");
+    document.body.style.top = "";
+    const scrollBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = "auto";
+    window.scrollTo(0, lockedScrollY);
+    document.documentElement.style.scrollBehavior = scrollBehavior;
     closing = false;
     pushed = false;
     if (origin?.isConnected) origin.focus();
@@ -280,7 +290,9 @@ function createProjectDialog(projects) {
     closing = true;
     dialog.classList.remove("is-open");
     dialog.classList.add("is-closing");
-    closeTimer = window.setTimeout(finishClose, 200);
+    const closeDelay = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 200;
+    if (closeDelay) closeTimer = window.setTimeout(finishClose, closeDelay);
+    else finishClose();
   }
 
   function requestClose() {
@@ -307,8 +319,13 @@ function createProjectDialog(projects) {
     render(project);
     if (!dialog.open) {
       origin = card || document.activeElement;
+      lockedScrollY = window.scrollY;
       dialog.showModal();
       document.body.classList.add("project-dialog-open");
+      if (window.matchMedia("(max-width: 599px)").matches) {
+        document.body.classList.add("project-dialog-open--mobile");
+        document.body.style.top = `-${lockedScrollY}px`;
+      }
     }
     requestAnimationFrame(() => {
       dialog.classList.add("is-open");
@@ -353,7 +370,12 @@ function createProjectDialog(projects) {
     requestClose();
   });
   dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) requestClose();
+    if (window.matchMedia("(max-width: 599px)").matches) return;
+    if (event.target !== dialog) return;
+    const bounds = dialog.getBoundingClientRect();
+    const clickedBackdrop = event.clientX < bounds.left || event.clientX > bounds.right
+      || event.clientY < bounds.top || event.clientY > bounds.bottom;
+    if (clickedBackdrop) requestClose();
   });
 
   return { dialog, open, syncHash };
@@ -406,7 +428,23 @@ function createHome(data) {
   skillsSection.setAttribute("aria-labelledby", "skills-title");
 
   const skills = element("div", "chip-list");
-  skills.append(...(data.skills || []).map((skill) => element("span", "skill-chip", skill)));
+  skills.append(...(data.skills || []).map((skill) => {
+    const value = String(skill);
+    const mobileValue = value.split("·", 1)[0].trim();
+    if (labels.skillsShortenedOnMobile !== true || !value.includes("·")) {
+      return element("span", "skill-chip", value);
+    }
+
+    const chip = element("span", "skill-chip skill-chip--shortened-mobile");
+    chip.title = value;
+    chip.setAttribute("aria-label", value);
+    const full = element("span", "skill-chip__full", value);
+    const shortened = element("span", "skill-chip__shortened", mobileValue);
+    full.setAttribute("aria-hidden", "true");
+    shortened.setAttribute("aria-hidden", "true");
+    chip.append(full, shortened);
+    return chip;
+  }));
   append(skillsSection, skillsHeading, skills);
 
   const profileMain = element("section", "profile-main glass-card");
@@ -423,9 +461,10 @@ function createHome(data) {
   const linkCount = visibleLinks.length;
   const preferredColumns = getPreferredLinkColumns(linkCount);
 
+  links.classList.toggle("link-list--labels-hidden-mobile", labels.linksTitleHiddenOnMobile === true);
   links.dataset.count = String(linkCount);
   links.style.setProperty("--link-basis-desktop", `calc(${100 / preferredColumns}% - var(--link-gap))`);
-  links.append(...visibleLinks.map(createProfileLink));
+  links.append(...visibleLinks.map((item) => createProfileLink(item, labels.linksTitleHiddenOnMobile === true)));
 
   const footer = element("footer", "profile-footer profile-footer--home");
   footer.append(element("span", "", data.footer?.copyright || ""));

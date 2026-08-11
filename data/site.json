@@ -31,7 +31,9 @@
   },
   "labels": {
     "skills": "What I work with",
+    "skillsShortenedOnMobile": true,
     "links": "Find me",
+    "linksTitleHiddenOnMobile": true,
     "portfolio": "View portfolio",
     "projectsEmpty": "Projects will appear here soon."
   },
@@ -39,7 +41,7 @@
     "Android · Jetpack Compose",
     "Kotlin · KMP",
     "Backend · Ktor",
-    "Bots & automation",
+    "Bots · Automation",
     "AI · LLM tooling",
     "DevOps · CI/CD",
     "Docker · self-hosting"
