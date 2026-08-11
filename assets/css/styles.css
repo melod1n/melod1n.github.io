@@ -1045,6 +1045,12 @@ img {
   }
 }
 
+@media (hover: none) and (pointer: coarse) {
+  .project-card {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 /* Tablet: retain the desktop portfolio grid while easing page spacing. */
 @media (min-width: 600px) and (max-width: 899px) {
   .page-shell {
