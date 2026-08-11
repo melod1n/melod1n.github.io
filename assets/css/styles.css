@@ -1104,6 +1104,14 @@ img {
     padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right));
   }
 
+  @media (min-height: 700px) {
+    .page-shell--home {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      place-items: center;
+    }
+  }
+
   @supports (min-height: 100dvh) {
     .page-shell--home,
     .page-shell--portfolio {
