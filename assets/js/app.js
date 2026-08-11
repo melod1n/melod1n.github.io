@@ -211,6 +211,8 @@ function createProjectDialog(projects) {
   let closing = false;
   let pushed = false;
   let closeTimer = null;
+  let focusCloseOnOpen = false;
+  let focusFrame = null;
   const projectBySlug = new Map(projects.map((project) => [projectSlug(project), project]).filter(([slug]) => slug));
 
   function currentSlug() {
@@ -259,6 +261,10 @@ function createProjectDialog(projects) {
 
   function finishClose() {
     if (!dialog.open) return;
+    if (focusFrame) window.cancelAnimationFrame(focusFrame);
+    focusFrame = null;
+    focusCloseOnOpen = false;
+    close.classList.remove("is-initial-focus");
     dialog.close();
     dialog.classList.remove("is-closing");
     document.body.classList.remove("project-dialog-open");
@@ -270,6 +276,7 @@ function createProjectDialog(projects) {
 
   function closeDialog() {
     if (!dialog.open || closing) return;
+    focusCloseOnOpen = false;
     closing = true;
     dialog.classList.remove("is-open");
     dialog.classList.add("is-closing");
@@ -290,6 +297,7 @@ function createProjectDialog(projects) {
   function open(project, card, addHistory = true) {
     const slug = projectSlug(project);
     if (!slug) return;
+    focusCloseOnOpen = !card && !dialog.open;
     if (closeTimer) {
       window.clearTimeout(closeTimer);
       closeTimer = null;
@@ -304,11 +312,6 @@ function createProjectDialog(projects) {
     }
     requestAnimationFrame(() => {
       dialog.classList.add("is-open");
-      if (!card && origin === document.body) {
-        window.setTimeout(() => {
-          if (dialog.open && origin === document.body) close.focus({ preventScroll: true });
-        }, 0);
-      }
     });
     if (addHistory && currentSlug() !== slug) {
       history.pushState({ projectDetails: true }, "", `#${encodeURIComponent(slug)}`);
@@ -326,6 +329,25 @@ function createProjectDialog(projects) {
   }
 
   close.addEventListener("click", requestClose);
+  close.addEventListener("pointerdown", () => close.classList.remove("is-initial-focus"));
+  dialog.addEventListener("focusin", (event) => {
+    if (event.target !== close) close.classList.remove("is-initial-focus");
+  });
+  dialog.addEventListener("toggle", () => {
+    if (!dialog.open) {
+      focusCloseOnOpen = false;
+      close.classList.remove("is-initial-focus");
+      return;
+    }
+    if (!focusCloseOnOpen || focusFrame) return;
+    focusFrame = requestAnimationFrame(() => {
+      focusFrame = null;
+      if (!focusCloseOnOpen || !dialog.open || closing) return;
+      focusCloseOnOpen = false;
+      close.classList.add("is-initial-focus");
+      close.focus({ preventScroll: true });
+    });
+  });
   dialog.addEventListener("cancel", (event) => {
     event.preventDefault();
     requestClose();

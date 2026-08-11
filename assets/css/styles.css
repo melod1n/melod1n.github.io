@@ -66,17 +66,14 @@
 }
 
 html {
-  min-width: 320px;
   min-height: 100%;
   background: var(--bg-deep);
   scroll-behavior: smooth;
 }
 
 body {
-  min-width: 320px;
   min-height: 100%;
   margin: 0;
-  overflow-x: hidden;
   background: linear-gradient(150deg, var(--bg) 0%, var(--bg-deep) 76%);
   color: var(--text);
   font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -132,6 +129,10 @@ a {
 
 a {
   color: inherit;
+}
+
+img {
+  max-width: 100%;
 }
 
 ::selection {
@@ -305,10 +306,6 @@ a {
   transition: color 180ms ease;
 }
 
-.handle:hover {
-  color: var(--accent);
-}
-
 .avatar-frame {
   position: relative;
   width: clamp(92px, 16vw, 138px);
@@ -376,12 +373,6 @@ a {
   font-weight: 680;
   text-decoration: none;
   transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
-}
-
-.portfolio-cta:hover {
-  border-color: var(--chip-border);
-  background: var(--link-bg-hover);
-  transform: translateY(-1px);
 }
 
 .content-section {
@@ -531,15 +522,6 @@ a {
   z-index: 1;
 }
 
-.profile-link:hover::before {
-  opacity: 1;
-}
-
-.profile-link:hover {
-  border-color: var(--border-soft);
-  transform: translateY(-1px);
-}
-
 .link-list[data-count="1"] .profile-link {
   flex: 0 1 320px;
   max-width: min(72%, 320px);
@@ -652,13 +634,6 @@ a {
   transition: color 180ms ease, border-color 180ms ease, background 180ms ease, transform 180ms ease;
 }
 
-.portfolio-link:hover {
-  color: var(--text);
-  border-color: var(--chip-border);
-  background: var(--link-bg-hover);
-  transform: translateY(-1px);
-}
-
 .portfolio-link svg {
   display: block;
   width: 18px;
@@ -718,17 +693,12 @@ a {
   pointer-events: none;
 }
 
-.project-card:hover {
-  border-color: var(--chip-border);
-  background: linear-gradient(145deg, var(--link-bg-hover), transparent);
-  transform: translateY(-3px);
-}
-
 .project-card__head,
 .project-card__description,
 .project-tags,
 .project-links,
 .project-card__details {
+  min-width: 0;
   position: relative;
   z-index: 1;
 }
@@ -746,6 +716,7 @@ a {
   margin: 0;
   font-size: clamp(1.35rem, 3vw, 1.8rem);
   letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
 }
 
 .project-card__description {
@@ -766,9 +737,12 @@ a {
   min-height: 30px;
   padding: 6px 10px;
   font-size: 0.76rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .project-link {
+  max-width: 100%;
   min-height: 38px;
   display: inline-flex;
   align-items: center;
@@ -783,9 +757,9 @@ a {
   transition: background 180ms ease, border-color 180ms ease;
 }
 
-.project-link:hover {
-  border-color: var(--chip-border);
-  background: var(--link-bg-hover);
+.project-link span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .project-link svg {
@@ -919,14 +893,8 @@ a {
   height: 16px;
 }
 
-.project-dialog__close:hover,
-.project-dialog__github:hover {
-  color: var(--text);
-  border-color: var(--chip-border);
-  background: var(--link-bg-hover);
-}
-
 .project-dialog__close:focus-visible,
+.project-dialog__close.is-initial-focus,
 .project-dialog__github:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--focus) 50%, transparent);
   outline-offset: 3px;
@@ -949,8 +917,7 @@ a {
   display: grid;
   grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
   gap: clamp(20px, 3vw, 30px);
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: auto;
   overscroll-behavior: contain;
   padding: 3px;
 }
@@ -1032,11 +999,70 @@ a {
   text-decoration: none;
 }
 
-.profile-footer a:hover {
-  color: var(--accent);
+@media (hover: hover) and (pointer: fine) {
+  .handle:hover,
+  .profile-footer a:hover {
+    color: var(--accent);
+  }
+
+  .portfolio-cta:hover,
+  .portfolio-link:hover {
+    border-color: var(--chip-border);
+    background: var(--link-bg-hover);
+    transform: translateY(-1px);
+  }
+
+  .portfolio-link:hover,
+  .project-dialog__close:hover,
+  .project-dialog__github:hover {
+    color: var(--text);
+  }
+
+  .profile-link:hover::before {
+    opacity: 1;
+  }
+
+  .profile-link:hover {
+    border-color: var(--border-soft);
+    transform: translateY(-1px);
+  }
+
+  .project-card:hover {
+    border-color: var(--chip-border);
+    background: linear-gradient(145deg, var(--link-bg-hover), transparent);
+    transform: translateY(-3px);
+  }
+
+  .project-link:hover,
+  .project-dialog__close:hover,
+  .project-dialog__github:hover {
+    border-color: var(--chip-border);
+    background: var(--link-bg-hover);
+  }
 }
 
-@media (max-width: 760px) {
+/* Tablet: retain the desktop portfolio grid while easing page spacing. */
+@media (min-width: 600px) and (max-width: 899px) {
+  .page-shell {
+    padding-inline: max(22px, env(safe-area-inset-left)) max(22px, env(safe-area-inset-right));
+  }
+
+  .profile-main {
+    padding: 32px;
+  }
+
+  .portfolio-card {
+    padding: 32px;
+  }
+
+  .project-dialog {
+    width: min(860px, calc(100vw - 40px));
+    max-height: calc(100dvh - 40px);
+  }
+}
+
+/* Phone: content-led home layout and card-only portfolio surfaces. */
+@media (max-width: 599px) {
   .ambient__glow {
     top: -25vh;
     left: -65vw;
@@ -1046,19 +1072,47 @@ a {
 
 
   :root {
-    --radius-card: 38px;
-    --radius-drawer: 34px;
+    --radius-card: 28px;
+    --radius-drawer: 24px;
   }
 
   .page-shell {
-    padding-inline: max(18px, env(safe-area-inset-left));
+    padding:
+      max(14px, env(safe-area-inset-top))
+      max(14px, env(safe-area-inset-right))
+      max(18px, env(safe-area-inset-bottom))
+      max(14px, env(safe-area-inset-left));
+  }
+
+  .page-shell--home,
+  .page-shell--portfolio {
+    display: block;
+    min-height: 100svh;
+  }
+
+  .page-shell--portfolio {
+    padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right));
+  }
+
+  @supports (min-height: 100dvh) {
+    .page-shell--home,
+    .page-shell--portfolio {
+      min-height: 100dvh;
+    }
+  }
+
+  .profile-shell,
+  .profile-footer--home,
+  .profile-footer--portfolio {
+    width: 100%;
   }
 
   .profile-main {
-    padding: 23px 22px 25px;
+    padding: 22px 18px 24px;
   }
 
   .profile-header {
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 14px;
   }
 
@@ -1094,7 +1148,7 @@ a {
   }
 
   .profile-header h1 {
-    font-size: clamp(1.95rem, 8.8vw, 2.72rem);
+    font-size: clamp(1.9rem, 9vw, 2.65rem);
   }
 
   .avatar-frame {
@@ -1103,7 +1157,7 @@ a {
   }
 
   .intro {
-    margin-top: 24px;
+    margin-top: 22px;
   }
 
   .intro p {
@@ -1111,9 +1165,10 @@ a {
   }
 
   .portfolio-cta {
-    width: 100%;
+    min-height: 44px;
     justify-content: center;
     margin-top: 16px;
+    padding-inline: 18px;
   }
 
   .skills-section {
@@ -1129,22 +1184,23 @@ a {
   .contact-drawer {
     width: 100%;
     margin-top: 14px;
-    padding: 21px 15px 15px;
+    padding: 20px 14px 15px;
   }
 
   .link-list {
     --link-gap: 8px;
-    --link-basis: calc(50% - var(--link-gap));
+    --link-basis: calc(50% - (var(--link-gap) / 2));
+    justify-content: stretch;
   }
 
   .link-list[data-count="1"] .profile-link {
-    flex: 0 1 260px;
-    max-width: min(76%, 260px);
+    flex: 1 1 100%;
+    max-width: none;
   }
 
   .link-list[data-count="2"] .profile-link {
-    flex: 1 1 calc(50% - var(--link-gap));
-    max-width: 210px;
+    flex: 1 1 calc(50% - (var(--link-gap) / 2));
+    max-width: none;
   }
 
   .profile-link {
@@ -1159,14 +1215,43 @@ a {
 
   .project-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 24px;
   }
 
   .project-card {
     grid-column: 1 / -1 !important;
+    gap: 12px;
+    padding: 20px;
+    border-radius: 20px;
   }
 
   .portfolio-card {
-    padding: 22px 19px;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .portfolio-card::before {
+    content: none;
+  }
+
+  .profile-card__topbar {
+    margin-bottom: 20px;
+  }
+
+  .portfolio-header h1 {
+    font-size: clamp(2.35rem, 12vw, 3.2rem);
+  }
+
+  .portfolio-header p {
+    font-size: 0.98rem;
+    line-height: 1.52;
   }
 
   .portfolio-link {
@@ -1182,61 +1267,45 @@ a {
   }
 
   .project-dialog {
-    width: calc(100vw - 16px);
-    max-height: calc(100dvh - 16px);
-    padding: clamp(18px, 5vw, 22px);
+    width: calc(100vw - max(8px, env(safe-area-inset-left)) - max(8px, env(safe-area-inset-right)));
+    max-height: calc(100dvh - max(8px, env(safe-area-inset-top)) - max(8px, env(safe-area-inset-bottom)));
+    padding: 18px;
     border-radius: 20px;
+  }
+
+  .project-dialog[open] {
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .project-dialog__top {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .project-dialog__actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .project-dialog__title {
+    font-size: clamp(1.75rem, 9vw, 2.4rem);
+    overflow-wrap: anywhere;
+  }
+
+  .project-dialog__chips {
+    padding: 2px;
   }
 
   .project-dialog__body {
     grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-@media (min-height: 900px) {
-  .page-shell--portfolio > .portfolio-card {
-    margin-top: max(0px, calc(50svh - 450px + 0.625svh - 5.625px));
-  }
-}
-
-@media (max-width: 440px) {
-  .profile-header h1 {
-    font-size: clamp(1.82rem, 8.4vw, 2.34rem);
+    gap: 16px;
+    overflow: auto;
+    padding: 3px;
   }
 
-  .eyebrow__mobile span {
-    min-height: 21px;
-    padding-inline: 6px;
-    font-size: 0.55rem;
-  }
-
-  .handle {
-    margin-top: 8px;
-  }
-
-  .avatar-frame {
-    width: 80px;
-    height: 80px;
-  }
-
-  .intro h2 {
-    font-size: 1.2rem;
-  }
-
-  .intro p {
-    font-size: 0.91rem;
-  }
-
-  .section-heading {
-    margin-bottom: 12px;
-  }
-
-  .chip-list {
-    gap: 7px;
-  }
-
-  .profile-link__label {
-    font-size: 0.84rem;
+  .project-dialog__image {
+    max-height: min(36dvh, 300px);
   }
 
   .profile-footer {
@@ -1246,7 +1315,14 @@ a {
   }
 }
 
-@media (max-height: 790px) and (min-width: 761px) {
+/* Desktop retains the original composition and vertical centering behavior. */
+@media (min-width: 900px) and (min-height: 900px) {
+  .page-shell--portfolio > .portfolio-card {
+    margin-top: max(0px, calc(50svh - 450px + 0.625svh - 5.625px));
+  }
+}
+
+@media (max-height: 790px) and (min-width: 900px) {
   .page-shell--home,
   .page-shell--portfolio {
     padding-block: 14px;
@@ -1286,96 +1362,5 @@ a {
 
   .project-dialog::backdrop {
     transition: none !important;
-  }
-}
-
-@media (max-width: 440px) and (max-height: 900px) {
-  .page-shell--home,
-  .page-shell--portfolio {
-    padding-block: max(9px, env(safe-area-inset-top)) max(9px, env(safe-area-inset-bottom));
-  }
-
-  .profile-main {
-    padding-top: 20px;
-    padding-bottom: 21px;
-  }
-
-  .intro {
-    margin-top: 18px;
-  }
-
-  .intro p {
-    margin-top: 8px;
-    line-height: 1.43;
-  }
-
-  .skills-section {
-    margin-top: 21px;
-  }
-
-  .section-heading {
-    margin-bottom: 10px;
-  }
-
-  .chip-list {
-    gap: 6px;
-  }
-
-  .skill-chip {
-    min-height: 31px;
-    padding: 6px 10px;
-  }
-
-  .contact-drawer {
-    padding-top: 18px;
-    padding-bottom: 12px;
-  }
-
-  .profile-link {
-    min-height: 42px;
-  }
-
-  .profile-link__icon {
-    width: 29px;
-    height: 29px;
-  }
-
-  .profile-footer {
-    margin-top: 10px;
-    padding-top: 10px;
-  }
-}
-
-@media (max-width: 440px) and (max-height: 820px) {
-  .page-shell--home,
-  .page-shell--portfolio {
-    padding-block: max(5px, env(safe-area-inset-top)) max(5px, env(safe-area-inset-bottom));
-  }
-
-  .profile-main {
-    padding-top: 15px;
-    padding-bottom: 16px;
-  }
-
-  .intro {
-    margin-top: 14px;
-  }
-
-  .skills-section {
-    margin-top: 16px;
-  }
-
-  .contact-drawer {
-    padding-top: 16px;
-    padding-bottom: 9px;
-  }
-
-  .profile-link {
-    min-height: 39px;
-  }
-
-  .profile-footer {
-    margin-top: 7px;
-    padding-top: 7px;
   }
 }
