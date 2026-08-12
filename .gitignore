@@ -4,3 +4,4 @@ stop_servers.py
 stop.sh
 .idea
 AGENTS.md
+node_modules
