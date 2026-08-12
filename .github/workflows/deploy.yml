@@ -25,7 +25,8 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        # actions/checkout v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Generate SEO for GitHub Pages
         env:
@@ -33,13 +34,16 @@ jobs:
         run: node scripts/generate-seo.mjs
 
       - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
+        # actions/configure-pages v6.0.0
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d
 
       - name: Upload site
-        uses: actions/upload-pages-artifact@v5
+        # actions/upload-pages-artifact v5.0.0
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
         with:
           path: .
 
       - name: Deploy
         id: deployment
-        uses: actions/deploy-pages@v4
+        # actions/deploy-pages v5.0.0
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128
