@@ -11,15 +11,11 @@ const ICONS = {
   close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>`
 };
 
-const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 const app = document.getElementById("app");
 const page = document.body.dataset.page || "home";
 
 let siteConfig = null;
 let themeConfig = null;
-let siteSnapshot = "";
-let themeSnapshot = "";
-let refreshInFlight = false;
 let projectDialog = null;
 
 function icon(name) {
@@ -119,17 +115,11 @@ function createProjectCard(project, openDetails) {
   const card = element("article", "project-card");
   const gridSpan = Number(project.gridSpan);
   if (gridSpan === 1 || gridSpan === 2) card.style.gridColumn = `span ${gridSpan}`;
-  card.tabIndex = 0;
-  card.setAttribute("aria-label", `View details for ${project.name || "project"}`);
-  card.addEventListener("click", (event) => {
-    if (!event.target.closest("a, button")) openDetails(project, card);
-  });
-  card.addEventListener("keydown", (event) => {
-    if ((event.key === "Enter" || event.key === " ") && !event.target.closest("a, button")) {
-      event.preventDefault();
-      openDetails(project, card);
-    }
-  });
+  const details = element("button", "project-card__details");
+  details.type = "button";
+  details.setAttribute("aria-label", `View details for ${project.name || "project"}`);
+  details.setAttribute("aria-haspopup", "dialog");
+  details.addEventListener("click", () => openDetails(project, details));
 
   const head = element("header", "project-card__head");
   append(
@@ -158,7 +148,7 @@ function createProjectCard(project, openDetails) {
     card.append(links);
   }
 
-  card.append(element("span", "project-card__details", "Details →"));
+  append(card, element("span", "project-card__details-label", "Details →"), details);
 
   return card;
 }
@@ -211,10 +201,12 @@ function createProjectDialog(projects) {
   let origin = null;
   let closing = false;
   let pushed = false;
+  let historyEntry = null;
   let closeTimer = null;
   let focusCloseOnOpen = false;
   let focusFrame = null;
   let lockedScrollY = 0;
+  let scrollLockedOnMobile = false;
   const projectBySlug = new Map(projects.map((project) => [projectSlug(project), project]).filter(([slug]) => slug));
 
   function currentSlug() {
@@ -277,11 +269,24 @@ function createProjectDialog(projects) {
     const scrollBehavior = document.documentElement.style.scrollBehavior;
     document.documentElement.style.scrollBehavior = "auto";
     window.scrollTo(0, lockedScrollY);
+    if (origin?.isConnected) origin.focus({ preventScroll: true });
+    window.scrollTo(0, lockedScrollY);
     document.documentElement.style.scrollBehavior = scrollBehavior;
     closing = false;
     pushed = false;
-    if (origin?.isConnected) origin.focus();
+    historyEntry = null;
+    scrollLockedOnMobile = false;
     origin = null;
+  }
+
+  function updateScrollLock() {
+    if (!dialog.open) return;
+    const isMobile = window.matchMedia("(max-width: 599px)").matches;
+    document.body.classList.add("project-dialog-open");
+    document.body.classList.toggle("project-dialog-open--mobile", isMobile);
+    document.body.style.top = isMobile ? `-${lockedScrollY}px` : "";
+    if (scrollLockedOnMobile && !isMobile) window.scrollTo(0, lockedScrollY);
+    scrollLockedOnMobile = isMobile;
   }
 
   function closeDialog() {
@@ -296,7 +301,7 @@ function createProjectDialog(projects) {
   }
 
   function requestClose() {
-    if (pushed) {
+    if (pushed && history.state?.projectDetails === historyEntry) {
       history.back();
     } else if (window.location.hash) {
       history.replaceState(history.state, "", `${window.location.pathname}${window.location.search}`);
@@ -309,7 +314,7 @@ function createProjectDialog(projects) {
   function open(project, card, addHistory = true) {
     const slug = projectSlug(project);
     if (!slug) return;
-    focusCloseOnOpen = !card && !dialog.open;
+    focusCloseOnOpen = !dialog.open;
     if (closeTimer) {
       window.clearTimeout(closeTimer);
       closeTimer = null;
@@ -321,25 +326,26 @@ function createProjectDialog(projects) {
       origin = card || document.activeElement;
       lockedScrollY = window.scrollY;
       dialog.showModal();
-      document.body.classList.add("project-dialog-open");
-      if (window.matchMedia("(max-width: 599px)").matches) {
-        document.body.classList.add("project-dialog-open--mobile");
-        document.body.style.top = `-${lockedScrollY}px`;
-      }
+      updateScrollLock();
     }
     requestAnimationFrame(() => {
       dialog.classList.add("is-open");
     });
     if (addHistory && currentSlug() !== slug) {
-      history.pushState({ projectDetails: true }, "", `#${encodeURIComponent(slug)}`);
+      historyEntry = `${Date.now()}-${Math.random()}`;
+      history.pushState({ projectDetails: historyEntry }, "", `#${encodeURIComponent(slug)}`);
       pushed = true;
     }
   }
 
-  function syncHash() {
+  function syncHash(fromHistory = false) {
+    if (fromHistory) {
+      pushed = false;
+      historyEntry = null;
+    }
     const project = projectBySlug.get(currentSlug());
     if (project) {
-      pushed = Boolean(history.state?.projectDetails);
+      pushed = history.state?.projectDetails === historyEntry;
       open(project, null, false);
     }
     else closeDialog();
@@ -377,6 +383,21 @@ function createProjectDialog(projects) {
       || event.clientY < bounds.top || event.clientY > bounds.bottom;
     if (clickedBackdrop) requestClose();
   });
+  dialog.addEventListener("keydown", (event) => {
+    if (event.key !== "Tab") return;
+    const focusable = [...dialog.querySelectorAll("button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex='-1'])")]
+      .filter((node) => !node.hidden && node.getClientRects().length);
+    if (!focusable.length) return;
+    const current = focusable.indexOf(document.activeElement);
+    if (event.shiftKey && (current <= 0)) {
+      event.preventDefault();
+      focusable.at(-1).focus();
+    } else if (!event.shiftKey && current === focusable.length - 1) {
+      event.preventDefault();
+      focusable[0].focus();
+    }
+  });
+  window.addEventListener("resize", updateScrollLock);
 
   return { dialog, open, syncHash };
 }
@@ -556,23 +577,12 @@ function applyMetadata(data) {
 
 function applyTheme() {
   if (!themeConfig) return;
-
-  const settings = themeConfig.settings || {};
-  const defaultTheme = settings.defaultTheme === "light" ? "light" : "dark";
-  const useSystemPreference = settings.useSystemPreference !== false;
-  const resolved = useSystemPreference
-    ? (systemTheme.matches ? "dark" : "light")
-    : defaultTheme;
-
-  document.documentElement.dataset.theme = resolved;
-  document.documentElement.style.colorScheme = resolved;
-
-  const values = themeConfig.themes?.[resolved] || {};
+  const values = themeConfig.themes?.dark || {};
   Object.entries(values).forEach(([name, value]) => {
     document.documentElement.style.setProperty(`--${name}`, value);
   });
 
-  const themeColor = themeConfig.browser?.[resolved] || values.bg;
+  const themeColor = themeConfig.browser?.dark || values.bg;
   if (themeColor) {
     document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
       meta.setAttribute("content", themeColor);
@@ -583,56 +593,15 @@ function applyTheme() {
   }
 }
 
-function watchSystemTheme() {
-  const listener = () => applyTheme();
-  if (typeof systemTheme.addEventListener === "function") {
-    systemTheme.addEventListener("change", listener);
-  } else if (typeof systemTheme.addListener === "function") {
-    systemTheme.addListener(listener);
-  }
-}
-
 async function loadJson(path) {
-  const url = new URL(path, document.baseURI);
-  url.searchParams.set("_", Date.now().toString());
-
-  const response = await fetch(url, {
-    cache: "no-store",
-    headers: { Accept: "application/json" }
-  });
+  const response = await fetch(path, { headers: { Accept: "application/json" } });
 
   if (!response.ok) throw new Error(`Unable to load ${path}: ${response.status}`);
   return response.json();
 }
 
-function preloadImage(src) {
-  if (!src) return Promise.resolve();
-
-  return new Promise((resolve) => {
-    const image = new Image();
-    let settled = false;
-    const finish = () => {
-      if (settled) return;
-      settled = true;
-      resolve();
-    };
-
-    image.onload = finish;
-    image.onerror = finish;
-    image.src = src;
-    window.setTimeout(finish, 2500);
-  });
-}
-
-function nextPaint() {
-  return new Promise((resolve) => {
-    requestAnimationFrame(() => requestAnimationFrame(resolve));
-  });
-}
-
 function revealPage() {
-  document.documentElement.classList.remove("is-loading");
-  document.documentElement.classList.add("is-ready");
+  app.setAttribute("aria-busy", "false");
 }
 
 function showFatalError(error) {
@@ -644,7 +613,7 @@ function showFatalError(error) {
     "p",
     "",
     window.location.protocol === "file:"
-      ? "Open the site through start-site.sh, start-site.cmd or python3 serve.py instead of opening index.html directly."
+      ? "Open the site through start.sh or python3 serve.py instead of opening index.html directly."
       : "Check data/site.json and data/theme.json for syntax errors, then reload the page."
   );
   const details = element("code", "", error instanceof Error ? error.message : String(error));
@@ -666,74 +635,17 @@ async function loadInitialConfig() {
 
   siteConfig = site;
   themeConfig = theme;
-  siteSnapshot = JSON.stringify(site);
-  themeSnapshot = JSON.stringify(theme);
-
   applyTheme();
   applyMetadata(siteConfig);
-  await preloadImage(siteConfig.profile?.avatar);
   renderPage(siteConfig);
-  await nextPaint();
   revealPage();
-}
-
-async function refreshConfig() {
-  if (refreshInFlight) return;
-  refreshInFlight = true;
-
-  try {
-    const [siteResult, themeResult] = await Promise.allSettled([
-      loadJson("data/site.json"),
-      loadJson("data/theme.json")
-    ]);
-
-    if (themeResult.status === "fulfilled") {
-      const nextSnapshot = JSON.stringify(themeResult.value);
-      if (nextSnapshot !== themeSnapshot) {
-        themeConfig = themeResult.value;
-        themeSnapshot = nextSnapshot;
-        applyTheme();
-      }
-    } else {
-      console.error("theme.json was not updated. The previous valid theme remains active.", themeResult.reason);
-    }
-
-    if (siteResult.status === "fulfilled") {
-      const nextSnapshot = JSON.stringify(siteResult.value);
-      if (nextSnapshot !== siteSnapshot) {
-        siteConfig = siteResult.value;
-        siteSnapshot = nextSnapshot;
-        applyMetadata(siteConfig);
-        await preloadImage(siteConfig.profile?.avatar);
-        renderPage(siteConfig);
-      }
-    } else {
-      console.error("site.json was not updated. The previous valid content remains on screen.", siteResult.reason);
-    }
-  } finally {
-    refreshInFlight = false;
-  }
-}
-
-function startConfigWatcher() {
-  const isLocalServer = ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
-
-  if (isLocalServer) {
-    window.setInterval(() => {
-      if (!document.hidden) refreshConfig();
-    }, 800);
-  }
-
-  window.addEventListener("focus", refreshConfig);
 }
 
 async function init() {
   try {
-    watchSystemTheme();
     await loadInitialConfig();
-    window.addEventListener("popstate", () => projectDialog?.syncHash());
-    window.addEventListener("hashchange", () => projectDialog?.syncHash());
-    startConfigWatcher();
+    window.addEventListener("popstate", () => projectDialog?.syncHash(true));
+    window.addEventListener("hashchange", () => projectDialog?.syncHash(true));
   } catch (error) {
     showFatalError(error);
   }
