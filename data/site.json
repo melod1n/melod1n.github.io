@@ -1,21 +1,38 @@
 {
   "meta": {
+    "defaultDeployment": "mlgt",
+    "deployments": {
+      "githubPages": {
+        "siteUrl": "https://melod1n.github.io"
+      },
+      "mlgt": {
+        "siteUrl": "https://mlgt.ru"
+      }
+    },
+    "siteName": "Danil Nikolaev",
     "lang": "en",
+    "locale": "en_US",
+    "robots": "index, follow, max-image-preview:large",
+    "socialImage": "assets/img/social-card.png",
+    "socialImageWidth": 1200,
+    "socialImageHeight": 630,
+    "socialImageType": "image/png",
+    "socialImageAlt": "Danil Nikolaev, software engineer",
+    "twitterCard": "summary_large_image",
+    "person": {
+      "jobTitle": "Software Engineer"
+    },
     "home": {
+      "path": "/",
       "title": "Danil Nikolaev — Android Developer",
-      "description": "Danil Nikolaev — Android engineer building products end to end with Kotlin, backends, automation, infrastructure and AI.",
-      "ogType": "website",
-      "ogTitle": "Danil Nikolaev — Android Developer",
-      "ogDescription": "Android products and whatever they need behind the screen.",
-      "ogImage": "assets/img/avatar.webp"
+      "description": "Danil Nikolaev is an Android engineer building products end to end with Kotlin, backends, automation, infrastructure and AI.",
+      "ogType": "website"
     },
     "portfolio": {
+      "path": "/portfolio.html",
       "title": "Portfolio — Danil Nikolaev",
-      "description": "Selected projects by Danil Nikolaev.",
-      "ogType": "website",
-      "ogTitle": "Portfolio — Danil Nikolaev",
-      "ogDescription": "Selected Android, Kotlin Multiplatform, backend, automation and infrastructure projects.",
-      "ogImage": "assets/img/avatar.webp"
+      "description": "Selected Android, Kotlin Multiplatform, backend, automation and infrastructure projects by Danil Nikolaev.",
+      "ogType": "website"
     }
   },
   "profile": {

@@ -14,7 +14,6 @@ const ICONS = {
 const app = document.getElementById("app");
 const page = document.body.dataset.page || "home";
 
-let siteConfig = null;
 let themeConfig = null;
 let projectDialog = null;
 
@@ -553,28 +552,6 @@ function renderPage(data) {
   if (projectDialog) projectDialog.syncHash();
 }
 
-function setMeta(name, value, attribute = "name") {
-  if (value === undefined || value === null) return;
-  let meta = document.head.querySelector(`meta[${attribute}="${CSS.escape(name)}"]`);
-  if (!meta) {
-    meta = document.createElement("meta");
-    meta.setAttribute(attribute, name);
-    document.head.append(meta);
-  }
-  meta.setAttribute("content", String(value));
-}
-
-function applyMetadata(data) {
-  const metadata = data.meta?.[page] || {};
-  document.documentElement.lang = metadata.lang || data.meta?.lang || "en";
-  document.title = metadata.title || "";
-  setMeta("description", metadata.description);
-  setMeta("og:type", metadata.ogType || "website", "property");
-  setMeta("og:title", metadata.ogTitle || metadata.title, "property");
-  setMeta("og:description", metadata.ogDescription || metadata.description, "property");
-  setMeta("og:image", metadata.ogImage || data.profile?.avatar, "property");
-}
-
 function applyTheme() {
   if (!themeConfig) return;
   const values = themeConfig.themes?.dark || {};
@@ -633,11 +610,9 @@ async function loadInitialConfig() {
     loadJson("data/theme.json")
   ]);
 
-  siteConfig = site;
   themeConfig = theme;
   applyTheme();
-  applyMetadata(siteConfig);
-  renderPage(siteConfig);
+  renderPage(site);
   revealPage();
 }
 
