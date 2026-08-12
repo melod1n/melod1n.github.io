@@ -28,10 +28,25 @@ jobs:
         # actions/checkout v6.0.2
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
-      - name: Generate SEO for GitHub Pages
+      - name: Setup Node.js
+        # actions/setup-node v7.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Generate site assets for GitHub Pages
         env:
           SITE_DEPLOYMENT: githubPages
-        run: node scripts/generate-seo.mjs
+        run: |
+          node scripts/generate-social-card.mjs
+          node scripts/generate-seo.mjs
+
+      - name: Remove build dependencies
+        run: rm -rf node_modules
 
       - name: Configure GitHub Pages
         # actions/configure-pages v6.0.0
